@@ -38,16 +38,14 @@ export async function postComment(request) {
     const name = params.get("name");
 
     let sentiment = ""
-    /* Uncomment to enable AI
     // Leverage AI to detect sentiment
-    const aiResponse = await httpRequest("/v2/models/sentiment", {
+    const aiResponse = await httpRequest("/v2/models/sentiment_analysis/infer", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ sequences: text }),
     });
     const sentimentObj = await aiResponse.json();
-    sentiment = sentimentObj.labels;
-    */
+    sentiment = sentimentObj.labels?.toString();
 
     // Upload AI-enhanced comment to EdgeKV
     const allComments = await edgeKV.getJson({ item: productId, default_value: [] });
@@ -66,6 +64,8 @@ export async function postComment(request) {
 }
 
 const escapeHtml = (/** @type {string} */ unsafe) => {
+    if (!unsafe)
+        return "";
     return unsafe.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#039;');
 }
 
