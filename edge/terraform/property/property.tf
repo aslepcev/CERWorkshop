@@ -9,13 +9,18 @@ terraform {
 }
 
 resource "akamai_property" "webshop" {
-  name        = var.property_hostname
+  name        = var.property_name
   contract_id = var.contract_id
   group_id    = var.group_id
   product_id  = "prd_SPM"
   hostnames {
-    cname_from             = var.property_hostname
-    cname_to               = "webshop-gmoissai.edgesuite.net"
+    cname_from             = var.web_hostname
+    cname_to               = "webshop2024-labs.akamaiuweb.com.edgekey.net"
+    cert_provisioning_type = "CPS_MANAGED"
+  }
+  hostnames {
+    cname_from             = var.api_hostname
+    cname_to               = "webshop2024-labs.akamaiuweb.com.edgekey.net"
     cert_provisioning_type = "CPS_MANAGED"
   }
   rule_format = data.akamai_property_rules_builder.webshop_rule_default.rule_format
@@ -23,7 +28,7 @@ resource "akamai_property" "webshop" {
 }
 
 # NOTE: Be careful when removing this resource as you can disable traffic
-resource "akamai_property_activation" "webshop-production" {
+resource "akamai_property_activation" "webshop-staging" {
   property_id                    = akamai_property.webshop.id
   contact                        = [var.email]
   version                        = akamai_property.webshop.latest_version

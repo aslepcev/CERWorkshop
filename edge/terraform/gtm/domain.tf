@@ -9,14 +9,15 @@ terraform {
 }
 
 resource "akamai_gtm_domain" "webshop" {
-  contract                  = var.contractid
-  group                     = var.groupid
+  contract                  = var.contract_id
+  group                     = var.group_id
   name                      = var.gtm_hostname
-  type                      = "basic"
-  comment                   = "first push"
+  type                      = "basic"//"weighted"//
+  comment                   = "pushed from terraform"
   email_notification_list   = [var.email]
   default_timeout_penalty   = 25
-  load_imbalance_percentage = 10
+  // Allow all traffic to go to a single DC, Geography takes highest precedence
+  load_imbalance_percentage = 100
   default_error_penalty     = 75
   cname_coalescing_enabled  = false
   load_feedback             = false

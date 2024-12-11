@@ -8,12 +8,10 @@ variable "config_section" {
   default = "default"
 }
 
-variable "group" {
-  type    = number
-  default = 133106
+variable "group_id" {
+  type    = string
 }
 
 variable "edgeworker_name" {
   type    = string
-  default = "webshop-comments"
 }

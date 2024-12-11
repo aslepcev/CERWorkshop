@@ -13,41 +13,43 @@ provider "akamai" {
   config_section = var.config_section
 }
 
+locals{
+  gtm_hostname = "webshop-${var.unique_name}.akadns.net"
+  edgeworker_name = "webshop-${var.unique_name}-comments"
+  property_name = "webshop-${var.unique_name}"
+}
+
 module "load_balancer" {
   source = "./gtm"
 
-  edgerc_path     = var.edgerc_path
-  config_section  = var.config_section
-  contractid      = var.contract_id
-  groupid         = var.group_id
-  cer_hostname    = var.cer_hostname
-  uswest_hostname = var.uswest_hostname
-  email           = var.email
-  gtm_hostname    = var.gtm_hostname
+  contract_id      = var.contract_id
+  group_id         = var.group_id
+  email            = var.email
+  unique_name      = var.unique_name
+  gtm_hostname     = local.gtm_hostname
 }
 
 module "edgeworkers" {
   source = "./edgeworkers"
 
-  edgerc_path     = var.edgerc_path
-  config_section  = var.config_section
-  group           = var.group
-  edgeworker_name = var.edgeworker_name
+  group_id        = var.group_id
+  edgeworker_name = local.edgeworker_name
 }
 
 module "property" {
   source = "./property"
 
-  edgerc_path    = var.edgerc_path
-  config_section = var.config_section
   contract_id    = var.contract_id
   group_id       = var.group_id
   email          = var.email
 
-  gtm_hostname  = var.gtm_hostname
+  property_name = local.property_name
+  web_hostname = "webshop-web-${var.unique_name}.labs.akamaiuweb.com"
+  api_hostname = "webshop-api-${var.unique_name}.labs.akamaiuweb.com"
+
+  web_origin_hostname = "origin-frontend.${local.gtm_hostname}"
+  api_origin_hostname = "origin-api.${local.gtm_hostname}"
+  ai_origin_hostname = "origin-ai.${local.gtm_hostname}"
+
   edgeworker_id = module.edgeworkers.edgeworker_id
-
-  property_hostname = var.property_hostname
-
-  depends_on = [module.load_balancer, module.edgeworkers]
 }

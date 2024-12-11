@@ -10,14 +10,14 @@ terraform {
 
 resource "akamai_edgeworker" "edgeworker" {
   name             = var.edgeworker_name
-  group_id         = var.group
-  resource_tier_id = 280
+  group_id         = var.group_id
+  resource_tier_id = 100
   local_bundle         = "./bundle.tgz"
 }
 
 resource "akamai_edgeworkers_activation" "my_activation" {
   edgeworker_id = akamai_edgeworker.edgeworker.edgeworker_id
-  network       = "PRODUCTION"
+  network       = "STAGING"
   version       = akamai_edgeworker.edgeworker.version
 }
 

@@ -1,4 +1,20 @@
 /*
+** Update with your own information
+** unique_name is used to distinguish between participant, use you name or nickname to avoid collisions
+** email will receive notifications on deployment completion, you may leave default value if not interested
+*/
+variable "unique_name" {
+  type        = string
+  default     = "gmoissai3"
+}
+
+variable "email" {
+  type        = string
+  default     = "gmoissai@akamai.com"
+}
+
+
+/*
 ** Akamai API authentication & authorization
 */
 variable "edgerc_path" {
@@ -9,62 +25,15 @@ variable "edgerc_path" {
 variable "config_section" {
   type    = string
   #default = "default"
-  default = "A2S"
+  default = "AKAU"
 }
 
 variable "contract_id" {
   type    = string
-  default = "ctr_C-1ED34DY"
+  default = "ctr_3-1A42HS1"
 }
 
 variable "group_id" {
   type    = string
-  default = "grp_133106"
-}
-
-variable "group" {
-  type    = number
-  default = 133106
-}
-
-variable "email" {
-  type        = string
-  default     = "gmoissai@akamai.com"
-}
-
-/*
-** Load balancer Origins
-*/
-variable "cer_hostname" {
-  type        = string
-  default     = "webshop-cer-devteam.lke267652.akamai-apl.net"
-}
-variable "uswest_hostname" {
-  type        = string
-  default     = "webshop-us-west-devteam.lke267652.akamai-apl.net"
-}
-
-/*
-** Load balancer hostname
-*/
-variable "gtm_hostname" {
-  type        = string
-  default     = "webshop-gmoissai2.akadns.net"
-}
-
-/*
-** EdgeWorkers
-*/
-variable "edgeworker_name" {
-  type    = string
-  default = "webshop-comments-gmoissai2"
-}
-
-/*
-** Delivery property configuration
-** Public hostname
-*/
-variable "property_hostname" {
-  type        = string
-  default     = "webshop-gmoissai2.edgesuite.net"
+  default = "grp_278981"
 }

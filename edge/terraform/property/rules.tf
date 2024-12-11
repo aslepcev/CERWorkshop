@@ -2,15 +2,17 @@
 data "akamai_property_rules_builder" "webshop_rule_default" {
   rules_v2024_10_21 {
     name      = "default"
-    is_secure = false
+    is_secure = true
     comments  = "The Default Rule template contains all the necessary and recommended behaviors. Rules are evaluated from top to bottom and the last matching rule wins."
+    // Send traffic to web origin by default
     behavior {
       origin {
         cache_key_hostname            = "REQUEST_HOST_HEADER"
         compress                      = true
         enable_true_client_ip         = true
-        forward_host_header           = "REQUEST_HOST_HEADER"
-        hostname                      = var.gtm_hostname
+        forward_host_header           = "CUSTOM"
+        custom_forward_host_header    = "web-origin.akamaiuiweb.com"
+        hostname                      = var.web_origin_hostname
         http_port                     = 80
         https_port                    = 443
         ip_version                    = "IPV4"
@@ -28,11 +30,9 @@ data "akamai_property_rules_builder" "webshop_rule_default" {
     behavior {
       cp_code {
         value {
-          created_date = 1548340937000
-          description  = "sso-guillaume.moissaing.fr"
-          id           = 815093
-          name         = "sso-guillaume.moissaing.fr"
-          products     = ["SPM", ]
+          id       = 1741401
+          name     = "webshop-cer-2024"
+          products = ["SPM", ]
         }
       }
     }
@@ -41,9 +41,168 @@ data "akamai_property_rules_builder" "webshop_rule_default" {
       data.akamai_property_rules_builder.webshop_rule_offload_origin.json,
       data.akamai_property_rules_builder.webshop_rule_allowed_methods.json,
       data.akamai_property_rules_builder.webshop_rule_product_comments.json,
+      data.akamai_property_rules_builder.webshop_rule_product_debug.json,
+      data.akamai_property_rules_builder.webshop_rule_api.json,
+      data.akamai_property_rules_builder.webshop_rule_ai.json,
     ]
   }
 }
+
+/*
+** Rules enabling EdgeWorkers on /products/... urls
+*/
+data "akamai_property_rules_builder" "webshop_rule_product_comments" {
+  rules_v2024_10_21 {
+    name                  = "Product Comments"
+    criteria_must_satisfy = "all"
+    criterion {
+      path {
+        match_case_sensitive = false
+        match_operator       = "MATCHES_ONE_OF"
+        normalize            = false
+        values               = ["/products/?*", ]
+      }
+    }
+    criterion {
+      request_header {
+        header_name         = "pristine"
+        match_operator      = "DOES_NOT_EXIST"
+        match_wildcard_name = false
+      }
+    }
+    behavior {
+      edge_worker {
+        create_edge_worker  = ""
+        edge_worker_id      = var.edgeworker_id
+        enabled             = true
+        m_pulse             = false
+        m_pulse_information = ""
+        resource_tier       = ""
+      }
+    }
+  }
+}
+
+
+/*
+** Rules debugging /products/test without Origin
+*/
+data "akamai_property_rules_builder" "webshop_rule_product_debug" {
+  rules_v2024_10_21 {
+    name                  = "Product Debug"
+    criteria_must_satisfy = "all"
+    criterion {
+      path {
+        match_case_sensitive = false
+        match_operator       = "MATCHES_ONE_OF"
+        normalize            = false
+        values               = ["/products/test", ]
+      }
+    }
+    criterion {
+      request_header {
+        header_name         = "pristine"
+        match_operator      = "EXISTS"
+        match_wildcard_name = false
+      }
+    }
+    behavior {
+      construct_response {
+        enabled        = true
+        response_code  = 200
+        body           = "<html><head><title>test</title></head><body><div>This is a test product</div></body></html>"
+        force_eviction = false
+        ignore_purge   = true
+      }
+    }
+  }
+}
+
+
+/*
+** Override Origin for API hostname
+*/
+data "akamai_property_rules_builder" "webshop_rule_api" {
+  rules_v2024_10_21 {
+    name                  = "API"
+    criteria_must_satisfy = "all"
+    criterion {
+      hostname {
+        match_operator = "IS_ONE_OF"
+        values         = [var.api_hostname, ]
+      }
+    }
+    behavior {
+      origin {
+        hostname                      = var.api_origin_hostname
+        forward_host_header           = "CUSTOM"
+        custom_forward_host_header    = "api-origin.akamaiuiweb.com"
+        cache_key_hostname            = "REQUEST_HOST_HEADER"
+        origin_type                   = "CUSTOMER"
+        compress                      = true
+        enable_true_client_ip         = true
+        http_port                     = 80
+        https_port                    = 443
+        ip_version                    = "IPV4"
+        min_tls_version               = "DYNAMIC"
+        origin_certificate            = ""
+        origin_sni                    = true
+        ports                         = ""
+        tls_version_title             = ""
+        true_client_ip_client_setting = false
+        true_client_ip_header         = "True-Client-IP"
+        verification_mode             = "PLATFORM_SETTINGS"
+      }
+    }
+  }
+}
+
+/*
+** Override Origin for AI path, requested from EdgeWorkers
+*/
+data "akamai_property_rules_builder" "webshop_rule_ai" {
+  rules_v2024_10_21 {
+    name                  = "API"
+    criteria_must_satisfy = "all"
+    criterion {
+      path {
+        match_operator       = "MATCHES_ONE_OF"
+        values               = ["/v2/models/sentiment*", ]
+        match_case_sensitive = true
+        normalize            = true
+      }
+    }
+    behavior {
+      origin {
+        cache_key_hostname            = "REQUEST_HOST_HEADER"
+        compress                      = true
+        enable_true_client_ip         = true
+        forward_host_header           = "CUSTOM"
+        custom_forward_host_header    = "ai-origin.akamaiuiweb.com"
+        hostname                      = var.ai_origin_hostname
+        http_port                     = 80
+        https_port                    = 443
+        ip_version                    = "IPV4"
+        min_tls_version               = "DYNAMIC"
+        origin_certificate            = ""
+        origin_sni                    = true
+        origin_type                   = "CUSTOMER"
+        ports                         = ""
+        tls_version_title             = ""
+        true_client_ip_client_setting = false
+        true_client_ip_header         = "True-Client-IP"
+        verification_mode             = "PLATFORM_SETTINGS"
+      }
+    }
+  }
+}
+
+
+
+/*
+** Default rules found in most configuration
+** Not much interest for this workshop
+*/
 
 data "akamai_property_rules_builder" "webshop_rule_accelerate_delivery" {
   rules_v2024_10_21 {
@@ -83,8 +242,7 @@ data "akamai_property_rules_builder" "webshop_rule_offload_origin" {
     }
     behavior {
       tiered_distribution {
-        enabled                 = true
-        tiered_distribution_map = "CH2"
+        enabled = true
       }
     }
     behavior {
@@ -239,41 +397,6 @@ data "akamai_property_rules_builder" "webshop_rule_allowed_methods" {
     behavior {
       allow_patch {
         enabled = false
-      }
-    }
-  }
-}
-
-/*
-** Rules enabling EdgeWorkers on /products/... urls
-*/
-data "akamai_property_rules_builder" "webshop_rule_product_comments" {
-  rules_v2024_10_21 {
-    name                  = "Product Comments"
-    criteria_must_satisfy = "all"
-    criterion {
-      path {
-        match_case_sensitive = false
-        match_operator       = "MATCHES_ONE_OF"
-        normalize            = false
-        values               = ["/products/?*", ]
-      }
-    }
-    criterion {
-      request_header {
-        header_name         = "pristine"
-        match_operator      = "DOES_NOT_EXIST"
-        match_wildcard_name = false
-      }
-    }
-    behavior {
-      edge_worker {
-        create_edge_worker  = ""
-        edge_worker_id      = var.edgeworker_id
-        enabled             = true
-        m_pulse             = false
-        m_pulse_information = ""
-        resource_tier       = ""
       }
     }
   }
