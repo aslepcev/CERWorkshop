@@ -1,4 +1,4 @@
 {
-    "edgeworker-version": "0.6",
-    "description" : "Product comments with AI"
+  "edgeworker-version": "4",
+  "description": "Product comments with AI"
 }

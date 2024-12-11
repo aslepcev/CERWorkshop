@@ -73,7 +73,7 @@ data "akamai_property_rules_builder" "webshop_rule_product_comments" {
       edge_worker {
         create_edge_worker  = ""
         edge_worker_id      = var.edgeworker_id
-        enabled             = true
+        enabled             = false // <=== Set to true to enable EdgeWorkers
         m_pulse             = false
         m_pulse_information = ""
         resource_tier       = ""

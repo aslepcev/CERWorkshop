@@ -38,6 +38,7 @@ export async function postComment(request) {
     const name = params.get("name");
 
     let sentiment = ""
+    /*
     // Leverage AI to detect sentiment
     const aiResponse = await httpRequest("/v2/models/sentiment_analysis/infer", {
         method: "POST",
@@ -46,6 +47,7 @@ export async function postComment(request) {
     });
     const sentimentObj = await aiResponse.json();
     sentiment = sentimentObj.labels?.toString();
+    */
 
     // Upload AI-enhanced comment to EdgeKV
     const allComments = await edgeKV.getJson({ item: productId, default_value: [] });
@@ -69,15 +71,47 @@ const escapeHtml = (/** @type {string} */ unsafe) => {
     return unsafe.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#039;');
 }
 
+const css = `
+    <style>
+    .comments-container{
+    position: fixed;
+    bottom: 0;
+    right: 15px;
+    border: 3px solid #f1f1f1;
+    background-color: white;
+    z-index: 9;
+    }
+    .comments-form input[type=text], .comments-form textarea {
+    width: 100%;
+    padding: 15px;
+    margin: 5px 0 22px 0;
+    border: none;
+    background: #f1f1f1;
+    }
+    .comments-form input[type=submit] {
+    background-color: #04AA6D;
+    color: white;
+    padding: 16px 20px;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+    margin-bottom:10px;
+    }
+    ul.comments {max-height: 200px; max-width: 300px; overflow: auto}
+    ul.comments li {margin-bottom: 8px;}
+    </style>
+    `;
+
 const commentFormHtml = (/** @type {string} */ url) => `
-<form action="${url}" method="POST">
-  <label for="name">name:</label>
-  <input type="text" id="name" name="name"><br><br>
-  <label for="text">comment:</label>
-  <textarea id="text" name="text"></textarea><br><br>
-  <input type="submit" value="Submit">
-</form>
-`;
+    <div>New comment</div>
+    <form class="comments-form" action="${url}" method="POST">
+        <label for="name">name:</label>
+        <input type="text" id="name" name="name"><br><br>
+        <label for="text">comment:</label>
+        <textarea id="text" name="text"></textarea><br><br>
+        <input type="submit" value="Submit">
+    </form>
+    `;
 
 /**
  * Fetch product comments and HTML page,
@@ -116,13 +150,16 @@ export async function getComments(request) {
         //Step 3.2: Rewrite the HTML with comments
         const rewriter = new HtmlRewritingStream();
         rewriter.onElement(`body`, el => {
+            el.append(css);
+            el.append('<div class="comments-container">')
             // Show list of previous comments
-            const commentsHtml = comments.map(c => `<li><span class="sentiment">${escapeHtml(c.sentiment)}</span><span class="name">${escapeHtml(c.name)}</span><span class="comment">:${escapeHtml(c.text)}</span></li>`);
+            const commentsHtml = comments.map(c => `<li><div class="sentiment">${escapeHtml(c.sentiment)}</div><div class="name">${escapeHtml(c.name)}</div><div class="comment">${escapeHtml(c.text)}</div></li>`);
             el.append('<ul class="comments">');
             el.append(commentsHtml.join(""));
             el.append('</ul>');
             // Inject form
             el.append(commentFormHtml(request.url));
+            el.append('</div>')
         });
         responseBody = responseBody.pipeThrough(rewriter);
     }
