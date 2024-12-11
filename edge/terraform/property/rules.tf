@@ -11,7 +11,7 @@ data "akamai_property_rules_builder" "webshop_rule_default" {
         compress                      = true
         enable_true_client_ip         = true
         forward_host_header           = "CUSTOM"
-        custom_forward_host_header    = "web-origin.akamaiuiweb.com"
+        custom_forward_host_header    = "web-origin.akmworkshop.eu"
         hostname                      = var.web_origin_hostname
         http_port                     = 80
         https_port                    = 443
@@ -135,7 +135,7 @@ data "akamai_property_rules_builder" "webshop_rule_api" {
       origin {
         hostname                      = var.api_origin_hostname
         forward_host_header           = "CUSTOM"
-        custom_forward_host_header    = "api-origin.akamaiuiweb.com"
+        custom_forward_host_header    = "api-origin.akmworkshop.eu"
         cache_key_hostname            = "REQUEST_HOST_HEADER"
         origin_type                   = "CUSTOMER"
         compress                      = true
@@ -177,7 +177,7 @@ data "akamai_property_rules_builder" "webshop_rule_ai" {
         compress                      = true
         enable_true_client_ip         = true
         forward_host_header           = "CUSTOM"
-        custom_forward_host_header    = "ai-origin.akamaiuiweb.com"
+        custom_forward_host_header    = "ai-origin.akmworkshop.eu"
         hostname                      = var.ai_origin_hostname
         http_port                     = 80
         https_port                    = 443
