@@ -30,9 +30,8 @@ data "akamai_property_rules_builder" "webshop_rule_default" {
     behavior {
       cp_code {
         value {
-          id       = 1741401
-          name     = "webshop-cer-2024"
-          products = ["SPM", ]
+          id       = 1741661
+          name     = "hackathon2024-webshop"
         }
       }
     }

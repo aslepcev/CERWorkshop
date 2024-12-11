@@ -11,7 +11,7 @@ terraform {
 resource "akamai_edgeworker" "edgeworker" {
   name             = var.edgeworker_name
   group_id         = var.group_id
-  resource_tier_id = 100
+  resource_tier_id = 200
   local_bundle         = "./bundle.tgz"
 }
 

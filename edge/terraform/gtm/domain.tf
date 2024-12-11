@@ -12,7 +12,7 @@ resource "akamai_gtm_domain" "webshop" {
   contract                  = var.contract_id
   group                     = var.group_id
   name                      = var.gtm_hostname
-  type                      = "basic"//"weighted"//
+  type                      = "basic"
   comment                   = "pushed from terraform"
   email_notification_list   = [var.email]
   default_timeout_penalty   = 25

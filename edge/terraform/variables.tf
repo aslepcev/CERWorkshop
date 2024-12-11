@@ -5,7 +5,7 @@
 */
 variable "unique_name" {
   type        = string
-  default     = "gmoissai3"
+  default     = "gmoissai5"
 }
 
 variable "email" {
@@ -30,10 +30,10 @@ variable "config_section" {
 
 variable "contract_id" {
   type    = string
-  default = "ctr_3-1A42HS1"
+  default = "ctr_3-1A3M5AH"
 }
 
 variable "group_id" {
   type    = string
-  default = "grp_278981"
+  default = "grp_279292"
 }
