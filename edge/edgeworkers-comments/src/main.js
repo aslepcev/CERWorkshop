@@ -35,7 +35,6 @@ export async function postComment(request) {
     const requestBody = await request.text();
     const params = new URLSearchParams(requestBody);
     const text = params.get("text");
-    const name = params.get("name");
 
     let sentiment = ""
     /*
@@ -52,7 +51,6 @@ export async function postComment(request) {
     // Upload AI-enhanced comment to EdgeKV
     const allComments = await edgeKV.getJson({ item: productId, default_value: [] });
     allComments.push({
-        name,
         text,
         sentiment,
     });
@@ -105,8 +103,6 @@ const css = `
 const commentFormHtml = (/** @type {string} */ url) => `
     <div>New comment</div>
     <form class="comments-form" action="${url}" method="POST">
-        <label for="name">name:</label>
-        <input type="text" id="name" name="name"><br><br>
         <label for="text">comment:</label>
         <textarea id="text" name="text"></textarea><br><br>
         <input type="submit" value="Submit">
@@ -153,7 +149,7 @@ export async function getComments(request) {
             el.append(css);
             el.append('<div class="comments-container">')
             // Show list of previous comments
-            const commentsHtml = comments.map(c => `<li><div class="sentiment">${escapeHtml(c.sentiment)}</div><div class="name">${escapeHtml(c.name)}</div><div class="comment">${escapeHtml(c.text)}</div></li>`);
+            const commentsHtml = comments.map(c => `<li><div class="sentiment"><b>${escapeHtml(c.sentiment)}</b></div><div class="comment">${escapeHtml(c.text)}</div></li>`);
             el.append('<ul class="comments">');
             el.append(commentsHtml.join(""));
             el.append('</ul>');

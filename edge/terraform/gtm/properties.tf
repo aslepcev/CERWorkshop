@@ -44,7 +44,8 @@ resource "akamai_gtm_property" "origin" {
       enabled       = true
       weight        = 1
       servers       = []
-      handout_cname = "cer1-${each.key}-nl-ams.akmworkshop.eu"//"${var.unique_name}-${each.key}-${traffic_target.value.nickname}.akmworkshop.eu"
+      // handout_cname = "cer1-${each.key}-nl-ams.akmworkshop.eu"
+      handout_cname = "${var.unique_name}-${each.key}-${traffic_target.value.nickname}.akmworkshop.eu"
     }
   }
 }

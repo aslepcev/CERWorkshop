@@ -36,4 +36,5 @@ variable "ai_origin_hostname" {
 
 variable "edgeworker_id" {
   type        = string
+  default     = ""
 }

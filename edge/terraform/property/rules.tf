@@ -69,14 +69,17 @@ data "akamai_property_rules_builder" "webshop_rule_product_comments" {
         match_wildcard_name = false
       }
     }
-    behavior {
-      edge_worker {
-        create_edge_worker  = ""
-        edge_worker_id      = var.edgeworker_id
-        enabled             = false // <=== Set to true to enable EdgeWorkers
-        m_pulse             = false
-        m_pulse_information = ""
-        resource_tier       = ""
+    dynamic behavior {
+      for_each = var.edgeworker_id != "" ? ["1"] : []
+      content {
+        edge_worker {
+          create_edge_worker  = ""
+          edge_worker_id      = var.edgeworker_id
+          enabled             = true // <=== Set to true to enable EdgeWorkers
+          m_pulse             = false
+          m_pulse_information = ""
+          resource_tier       = ""
+        }
       }
     }
   }

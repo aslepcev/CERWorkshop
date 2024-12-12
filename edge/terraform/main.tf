@@ -17,6 +17,8 @@ locals{
   gtm_hostname = "webshop-${var.unique_name}.akadns.net"
   edgeworker_name = "webshop-${var.unique_name}-comments"
   property_name = "webshop-${var.unique_name}"
+  web_hostname = "webshop-web-${var.unique_name}.labs.akamaiuweb.com"
+  api_hostname = "webshop-api-${var.unique_name}.labs.akamaiuweb.com"
 }
 
 module "load_balancer" {
@@ -29,12 +31,14 @@ module "load_balancer" {
   gtm_hostname     = local.gtm_hostname
 }
 
+/*
 module "edgeworkers" {
   source = "./edgeworkers"
 
   group_id        = var.group_id
   edgeworker_name = local.edgeworker_name
 }
+*/
 
 module "property" {
   source = "./property"
@@ -44,12 +48,22 @@ module "property" {
   email          = var.email
 
   property_name = local.property_name
-  web_hostname = "webshop-web-${var.unique_name}.labs.akamaiuweb.com"
-  api_hostname = "webshop-api-${var.unique_name}.labs.akamaiuweb.com"
+  web_hostname = local.web_hostname
+  api_hostname = local.api_hostname
 
   web_origin_hostname = "origin-frontend.${local.gtm_hostname}"
   api_origin_hostname = "origin-api.${local.gtm_hostname}"
   ai_origin_hostname = "origin-nm.${local.gtm_hostname}"
 
-  edgeworker_id = module.edgeworkers.edgeworker_id
+  //edgeworker_id = module.edgeworkers.edgeworker_id
+}
+
+output "api_hostname" {
+  description = "Hostname you should put in frontend code to reach APIs"
+  value = local.api_hostname
+}
+
+output "web_hostname" {
+  description = "Hostname of you website"
+  value = local.web_hostname
 }
