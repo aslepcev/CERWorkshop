@@ -101,9 +101,8 @@ const css = `
     `;
 
 const commentFormHtml = (/** @type {string} */ url) => `
-    <div>New comment</div>
     <form class="comments-form" action="${url}" method="POST">
-        <label for="text">comment:</label>
+        <label for="text">New comment</label>
         <textarea id="text" name="text"></textarea><br><br>
         <input type="submit" value="Submit">
     </form>
