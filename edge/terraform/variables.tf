@@ -5,12 +5,12 @@
 */
 variable "unique_name" {
   type        = string
-  default     = "gmoissai5"
+  default     = "cer1"
 }
 
 variable "email" {
   type        = string
-  default     = "gmoissai@akamai.com"
+  default     = "noreply@example.org"
 }
 
 

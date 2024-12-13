@@ -53,7 +53,7 @@ module "property" {
 
   web_origin_hostname = "origin-frontend.${local.gtm_hostname}"
   api_origin_hostname = "origin-api.${local.gtm_hostname}"
-  ai_origin_hostname = "origin-nm.${local.gtm_hostname}"
+  ai_origin_hostname = "origin-ai.${local.gtm_hostname}"
 
   //edgeworker_id = module.edgeworkers.edgeworker_id
 }
